@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { Switch } from "@/components/ui/switch"
-import { Shield, Database, Code, Mail, Github, Linkedin, ExternalLink, Download, Server, Terminal, Eye, Lock, Zap, Activity, FileText, Calendar, MapPin, Building, GraduationCap, Award, Moon, Sun, ChevronRight } from 'lucide-react'
+import { Shield, Database, Code, Mail, Github, Linkedin, ExternalLink, Download, Server, Terminal, Eye, Lock, Zap, Activity, Calendar, MapPin, Building, Moon, Sun, ChevronRight, CheckCircle2, AlertTriangle } from 'lucide-react'
 
 // Terminal typing animation hook
 function useTerminalTyping(text: string, speed: number = 50) {
@@ -106,6 +106,65 @@ export default function TerminalExecutivePortfolio() {
   
   const whoamiText = useTerminalTyping("BRANDON JOHNSON\nCyber Range Developer // Red + Blue Team Training", 30)
   const promptText = useTerminalTyping("Ready to build secure digital environments...", 40)
+  const resumeRef = useRef<HTMLAnchorElement>(null);
+  const handleResumeDownload = (e: React.MouseEvent) => {
+    e.preventDefault();
+    resumeRef.current?.click();
+  };
+
+  // ===== Contact form state (controlled inputs) =====
+  const [firstName, setFirstName] = useState<string>('');
+  const [lastName, setLastName] = useState<string>('');
+  const [email,   setEmail]     = useState<string>('');
+  const [subject, setSubject]   = useState<string>('');
+  const [message, setMessage]   = useState<string>('');
+
+  // Submission status for success/error feedback
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
+
+  // We will submit to Formspree via fetch, without using React's onSubmit prop.
+  const formRef = useRef<HTMLFormElement>(null);
+
+  useEffect(() => {
+    const form = formRef.current;
+    if (!form) return;
+
+    const handleSubmit = async (e: Event) => {
+      e.preventDefault();
+      if (!form) return;
+
+      setSubmitStatus('submitting');
+
+      try {
+        const res = await fetch(form.action, {
+          method: form.method,
+          body: new FormData(form),
+          headers: {
+            Accept: 'application/json',
+          },
+        });
+
+        if (res.ok) {
+          // Clear inputs after successful submission
+          setFirstName('');
+          setLastName('');
+          setEmail('');
+          setSubject('');
+          setMessage('');
+          setSubmitStatus('success');
+        } else {
+          setSubmitStatus('error');
+        }
+      } catch {
+        setSubmitStatus('error');
+      }
+    };
+
+    form.addEventListener('submit', handleSubmit);
+    return () => {
+      form.removeEventListener('submit', handleSubmit);
+    };
+  }, []);
 
   // Scroll spy functionality
   useEffect(() => {
@@ -193,42 +252,52 @@ export default function TerminalExecutivePortfolio() {
 
   const experiences = [
     {
-      title: "Senior Cyber Range Developer",
-      company: "Advanced Security & Cyber Training Excellence (ASCTE)",
-      location: "Remote",
-      period: "2023 - Present",
-      timestamp: "[2023-01-15 09:00:00]",
-      description: "Lead development of advanced cyber range environments and comprehensive training curricula for government and enterprise clients.",
+      title: "IT Administrator",
+      company: "Systems Products & Solutions, Inc.",
+      location: "Huntsville, AL",
+      period: "Jun 2022 – Jan 2023",
+      timestamp: "[2022-06-01 08:00:00]",
+      description: "Deployed Office 365 to 150+ users and implemented secure data backups. Interfaced with Army Futures and AMC to ensure synchronization.",
       achievements: [
-        "Designed 15+ cyber range scenarios serving 500+ students annually",
-        "Reduced training deployment time by 60% through automation",
-        "Led technical integration with NICE Framework standards"
+        "Deployed Office 365 to 150+ users and implemented secure data backups.",
+        "Interfaced with Army Futures and AMC to ensure synchronization."
       ]
     },
     {
-      title: "Cybersecurity Instructor & Curriculum Developer",
-      company: "TechSec Academy",
-      location: "Washington, DC",
-      period: "2021 - 2023",
-      timestamp: "[2021-03-10 08:30:00]",
-      description: "Developed and delivered hands-on cybersecurity training programs for government agencies and Fortune 500 companies.",
+      title: "Network Support Technician LvL II",
+      company: "Huntsville Hospital",
+      location: "Huntsville, AL",
+      period: "Jun 2023 – Present",
+      timestamp: "[2023-06-01 09:00:00]",
+      description: "Diagnosed and resolved IT support issues for 100+ thin clients via VMware. Automated tasks with batch files and implemented BitLocker encryption. Managed secure systems in the hospital data center.",
       achievements: [
-        "Trained 200+ cybersecurity professionals across 12 organizations",
-        "Achieved 95% student satisfaction rating across all courses",
-        "Developed proprietary red team simulation methodology"
+        "Diagnosed and resolved IT support issues for 100+ thin clients via VMware.",
+        "Automated tasks with batch files and implemented BitLocker encryption.",
+        "Managed secure systems in the hospital data center."
       ]
     },
     {
-      title: "Senior Penetration Tester",
-      company: "SecureNet Solutions",
-      location: "New York, NY",
-      period: "2019 - 2021",
-      timestamp: "[2019-06-01 10:15:00]",
-      description: "Conducted comprehensive security assessments and penetration testing for enterprise clients.",
+      title: "Junior Cyber Associate",
+      company: "H2L Solutions, Inc.",
+      location: "Huntsville, AL",
+      period: "Mar 2024 – Jun 2024",
+      timestamp: "[2024-03-01 08:30:00]",
+      description: "Studied CMMC, ICS/FRCS security, and RMF Authorization to Operate. Supported critical cybersecurity framework processes.",
       achievements: [
-        "Completed 50+ penetration testing engagements",
-        "Identified critical vulnerabilities in 80% of assessed systems",
-        "Mentored junior security analysts and testing methodologies"
+        "Studied CMMC, ICS/FRCS security, and RMF Authorization to Operate.",
+        "Supported critical cybersecurity framework processes."
+      ]
+    },
+    {
+      title: "Cyber Range Developer",
+      company: "ASCTE",
+      location: "Huntsville, AL",
+      period: "2024 – Present",
+      timestamp: "[2024-01-01 10:00:00]",
+      description: "Built hands-on red/blue team labs with Kali and Purple Team tooling. Developed simulation-based content with ELK and SIEM tools.",
+      achievements: [
+        "Built hands-on red/blue team labs with Kali and Purple Team tooling.",
+        "Developed simulation-based content with ELK and SIEM tools."
       ]
     }
   ]
@@ -266,17 +335,32 @@ export default function TerminalExecutivePortfolio() {
                 Professional Portfolio
               </h1>
               <p className="text-lg text-gray-600 dark:text-gray-300 leading-relaxed mb-8">
-                Experienced cybersecurity professional specializing in the design and development of 
-                advanced cyber range environments and comprehensive training curricula. With over 7 years 
-                in the field, I focus on creating immersive learning experiences that bridge the gap 
-                between theoretical knowledge and practical application.
+                Cybersecurity and IT professional with a strong focus on designing and developing 
+                advanced cyber range environments and comprehensive training curricula. With over four years of experience 
+                spanning cybersecurity, IT administration, and network support. I create immersive, scenario-driven learning
+                experiences that connect theory to real-world application. My work integrates live virtual labs, custom-built
+                simulations, and NICE Framework-aligned modules to equip learners with practical skills in areas such as incident
+                response, penetration testing, digital forensics, and vulnerability analysis.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
-                <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
+                <Button size="lg" className="bg-blue-600 hover:bg-blue-700"
+                onClick={() => scrollToSection('contact')}
+                type="button">
                   <Mail className="w-4 h-4 mr-2" />
                   Get In Touch
                 </Button>
-                <Button size="lg" variant="outline">
+
+                {/* Hidden anchor for resume download */}
+                <a
+                  href="/resume.pdf"
+                  download
+                  ref={resumeRef}
+                  style={{ display: 'none' }}
+                  aria-hidden="true"
+                  tabIndex={-1}
+                />
+                  
+                <Button size="lg" variant="outline" onClick={handleResumeDownload}>
                   <Download className="w-4 h-4 mr-2" />
                   Download Resume
                 </Button>
@@ -508,19 +592,52 @@ export default function TerminalExecutivePortfolio() {
           <div className="grid lg:grid-cols-2 gap-12">
             <TerminalWindow title="message_console">
               <div className="text-green-400 mb-4">
-                <span className="text-blue-400">brandon@cyberrange</span>
+                <span className="text-blue-400">branjohnson331@gmail.com</span>
                 <span className="text-white">:~$ </span>
                 <span className="text-green-400">./send_message.sh</span>
               </div>
-              <form className="space-y-4">
+
+              {/* Success / Error messages */}
+              <div aria-live="polite" className="mb-4">
+                {submitStatus === 'success' && (
+                  <div className="flex items-start gap-2 rounded border border-green-700/40 bg-green-900/30 p-3 text-green-200">
+                    <CheckCircle2 className="h-4 w-4 mt-0.5" />
+                    <div>
+                      <div className="font-semibold">Message dispatched</div>
+                      <div>Your message was sent successfully. I’ll get back to you soon.</div>
+                    </div>
+                  </div>
+                )}
+                {submitStatus === 'error' && (
+                  <div className="flex items-start gap-2 rounded border border-yellow-700/40 bg-yellow-900/30 p-3 text-yellow-200">
+                    <AlertTriangle className="h-4 w-4 mt-0.5" />
+                    <div>
+                      <div className="font-semibold">Submission failed</div>
+                      <div>Something went wrong sending your message. Please try again or email me directly.</div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* NOTE: No onSubmit prop per instructions. We use native event via useEffect. */}
+              <form
+                ref={formRef}
+                className="space-y-4"
+                action="https://formspree.io/f/mgvzrwqy"
+                method="POST"
+              >
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-green-400 text-sm font-mono mb-1">
                       --first-name
                     </label>
                     <Input 
+                      name="firstName"
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
                       placeholder="John" 
                       className="bg-gray-800 border-gray-600 text-white font-mono text-sm"
+                      required
                     />
                   </div>
                   <div>
@@ -528,8 +645,12 @@ export default function TerminalExecutivePortfolio() {
                       --last-name
                     </label>
                     <Input 
+                      name="lastName"
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
                       placeholder="Doe" 
                       className="bg-gray-800 border-gray-600 text-white font-mono text-sm"
+                      required
                     />
                   </div>
                 </div>
@@ -538,9 +659,13 @@ export default function TerminalExecutivePortfolio() {
                     --email
                   </label>
                   <Input 
+                    name="email"
                     type="email" 
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     placeholder="john.doe@company.com" 
                     className="bg-gray-800 border-gray-600 text-white font-mono text-sm"
+                    required
                   />
                 </div>
                 <div>
@@ -548,8 +673,12 @@ export default function TerminalExecutivePortfolio() {
                     --subject
                   </label>
                   <Input 
+                    name="subject"
+                    value={subject}
+                    onChange={(e) => setSubject(e.target.value)}
                     placeholder="Cyber Range Consultation" 
                     className="bg-gray-800 border-gray-600 text-white font-mono text-sm"
+                    required
                   />
                 </div>
                 <div>
@@ -557,12 +686,24 @@ export default function TerminalExecutivePortfolio() {
                     --message
                   </label>
                   <Textarea 
+                    name="message"
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
                     placeholder="Tell me about your project or training needs..."
                     className="bg-gray-800 border-gray-600 text-white font-mono text-sm min-h-[100px]"
+                    required
                   />
                 </div>
-                <Button className="w-full bg-green-600 hover:bg-green-700 font-mono">
-                  $ ./execute --send
+
+                {/* Optional honeypot field to reduce spam */}
+                <input type="text" name="_gotcha" className="hidden" aria-hidden="true" />
+
+                <Button
+                  type="submit"
+                  className="w-full bg-green-600 hover:bg-green-700 font-mono disabled:opacity-70"
+                  disabled={submitStatus === 'submitting'}
+                >
+                  {submitStatus === 'submitting' ? '$ ./execute --sending...' : '$ ./execute --send'}
                 </Button>
               </form>
             </TerminalWindow>
@@ -579,7 +720,7 @@ export default function TerminalExecutivePortfolio() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <a 
-                    href="https://linkedin.com/in/brandon-johnson-cyber" 
+                    href="https://linkedin.com/in/brandon-johnson-a32ab0224/" 
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center p-4 rounded-lg border border-gray-200 dark:border-gray-600 hover:border-blue-300 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
@@ -588,12 +729,12 @@ export default function TerminalExecutivePortfolio() {
                     <div>
                       <div className="font-medium text-gray-900 dark:text-white">LinkedIn</div>
                       <div className="text-sm text-gray-500 dark:text-gray-400 font-mono">
-                        /in/brandon-johnson-cyber
+                        /in/brandon-johnson
                       </div>
                     </div>
                   </a>
                   <a 
-                    href="https://github.com/brandon-johnson-cyber" 
+                    href="https://github.com/bjohnsonascte" 
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center p-4 rounded-lg border border-gray-200 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
@@ -602,19 +743,19 @@ export default function TerminalExecutivePortfolio() {
                     <div>
                       <div className="font-medium text-gray-900 dark:text-white">GitHub</div>
                       <div className="text-sm text-gray-500 dark:text-gray-400 font-mono">
-                        /brandon-johnson-cyber
+                        /bjohnsonascte
                       </div>
                     </div>
                   </a>
                   <a 
-                    href="mailto:brandon@cyberrange.dev" 
+                    href="mailto:branjohnson331@gmail.com" 
                     className="flex items-center p-4 rounded-lg border border-gray-200 dark:border-gray-600 hover:border-green-300 dark:hover:border-green-500 hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors"
                   >
                     <Mail className="w-5 h-5 text-green-600 dark:text-green-400 mr-3" />
                     <div>
                       <div className="font-medium text-gray-900 dark:text-white">Email</div>
                       <div className="text-sm text-gray-500 dark:text-gray-400 font-mono">
-                        brandon@cyberrange.dev
+                        branjohnson331@gmail.com
                       </div>
                     </div>
                   </a>
@@ -653,13 +794,13 @@ export default function TerminalExecutivePortfolio() {
               <span>© 2024 All rights reserved.</span>
             </div>
             <div className="flex space-x-6 mt-4 md:mt-0">
-              <a href="https://linkedin.com/in/brandon-johnson-cyber" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
+              <a href="https://linkedin.com/in/brandon-johnson-a32ab0224/" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
                 <Linkedin className="w-5 h-5" />
               </a>
-              <a href="https://github.com/brandon-johnson-cyber" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
+              <a href="https://github.com/bjohnsonascte" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
                 <Github className="w-5 h-5" />
               </a>
-              <a href="mailto:brandon@cyberrange.dev" className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
+              <a href="mailto:branjohnson331@gmail.com" className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
                 <Mail className="w-5 h-5" />
               </a>
             </div>
